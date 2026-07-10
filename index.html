@@ -3,365 +3,292 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>إجازة — رحلتك تبدأ من هنا</title>
-
-  <!-- Favicon -->
+  <title>إجازة — قريباً</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E✈️%3C/text%3E%3C/svg%3E">
-
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
-    html{scroll-behavior:smooth}
     body{
       font-family:'Segoe UI',Tahoma,sans-serif;
       color:#1a1a2e;
       background:#fff;
       line-height:1.7;
-      direction:rtl
+      direction:rtl;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column
     }
-
     :root{
       --green:#059669;
       --green-dark:#047857;
       --green-light:#d1fae5;
       --red:#dc2626;
-      --red-dark:#b91c1c;
       --white:#fff;
-      --black:#1a1a2e;
       --gray:#6b7280;
-      --light:#f0fdf4;
-      --shadow:0 4px 24px rgba(0,0,0,.06);
-      --radius:12px
+      --light:#f0fdf4
     }
 
+    /* ===== HEADER ===== */
     header{
-      background:var(--white);
-      box-shadow:var(--shadow);
-      position:fixed;
-      top:0;left:0;right:0;
-      z-index:100;
-      padding:12px 40px;
+      padding:16px 40px;
       display:flex;
       justify-content:space-between;
-      align-items:center
+      align-items:center;
+      position:fixed;
+      top:0;left:0;right:0;
+      z-index:10;
+      background:rgba(255,255,255,.85);
+      backdrop-filter:blur(10px)
     }
     .logo{
       display:flex;
       align-items:center;
       gap:8px;
-      font-size:1.6rem;
+      font-size:1.5rem;
       font-weight:800;
       color:var(--green)
     }
     .logo-icon{
       background:var(--green);
       color:#fff;
-      width:38px;height:38px;
+      width:36px;height:36px;
       border-radius:10px;
       display:flex;align-items:center;justify-content:center;
-      font-size:1.2rem
+      font-size:1.1rem
     }
-    nav a{
-      margin-right:24px;
+    .lang-switch{
+      font-size:.85rem;
+      color:var(--gray);
       font-weight:600;
-      color:var(--black);
-      font-size:.9rem;
-      transition:color .2s
+      cursor:default
     }
-    nav a:hover{color:var(--green)}
 
+    /* ===== HERO ===== */
     .hero{
-      min-height:100vh;
-      display:flex;align-items:center;justify-content:center;
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       text-align:center;
-      padding:120px 24px 80px;
-      background:linear-gradient(135deg,#ecfdf5 0%,#fef2f2 50%,#fff7ed 100%);
+      padding:100px 24px 60px;
+      background:linear-gradient(135deg,#ecfdf5 0%,#fef2f2 40%,#fff7ed 100%);
       position:relative;
       overflow:hidden
     }
     .hero::before{
-      content:"";
-      position:absolute;top:-60px;right:-60px;
-      width:200px;height:200px;
-      background:var(--green);
-      opacity:.05;
+      content:"";position:absolute;top:-80px;right:-80px;
+      width:280px;height:280px;
+      background:radial-gradient(circle,var(--green),transparent 70%);
+      opacity:.06;
       border-radius:50%
     }
     .hero::after{
-      content:"";
-      position:absolute;bottom:-80px;left:-80px;
-      width:250px;height:250px;
-      background:var(--red);
+      content:"";position:absolute;bottom:-100px;left:-100px;
+      width:350px;height:350px;
+      background:radial-gradient(circle,var(--red),transparent 70%);
       opacity:.04;
       border-radius:50%
     }
+
+    .hero-content{position:relative;z-index:2}
+    .plane{
+      font-size:4rem;
+      margin-bottom:12px;
+      display:inline-block;
+      animation:fly 3s ease-in-out infinite
+    }
+    @keyframes fly{
+      0%,100%{transform:translateY(0) rotate(0)}
+      50%{transform:translateY(-18px) rotate(5deg)}
+    }
+
     .hero h1{
       font-size:3.5rem;
       font-weight:900;
       color:var(--green);
-      margin-bottom:8px;
-      letter-spacing:-1px
+      margin-bottom:6px
     }
     .hero .sub{
-      font-size:1.3rem;
+      font-size:1.2rem;
       color:var(--gray);
-      margin-bottom:8px;
+      margin-bottom:16px;
       font-weight:500
     }
-    .hero .desc{
-      font-size:1.1rem;
-      color:var(--gray);
-      max-width:480px;
-      margin:0 auto 32px
-    }
-    .hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
-    .btn-primary,.btn-outline{
-      padding:13px 34px;
-      border-radius:50px;
-      font-weight:700;
-      font-size:1rem;
-      transition:all .25s;
-      display:inline-block
-    }
-    .btn-primary{background:var(--green);color:#fff}
-    .btn-primary:hover{background:var(--green-dark);transform:translateY(-2px)}
-    .btn-outline{border:2px solid var(--red);color:var(--red)}
-    .btn-outline:hover{background:var(--red);color:#fff;transform:translateY(-2px)}
-    .hero-tag{
-      display:inline-block;
+    .hero .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
       background:var(--green-light);
       color:var(--green-dark);
       padding:6px 18px;
       border-radius:50px;
       font-weight:600;
-      font-size:.85rem;
-      margin-bottom:16px
+      font-size:.9rem;
+      margin-bottom:20px
     }
+    .hero .badge .dot{
+      width:8px;height:8px;
+      border-radius:50%;
+      background:var(--green);
+      animation:pulse 1.5s infinite
+    }
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-    section{padding:80px 24px}
-    .container{max-width:1100px;margin:0 auto}
-    .section-title{
-      text-align:center;
-      font-size:2rem;
-      font-weight:800;
-      margin-bottom:8px
-    }
-    .section-sub{
-      text-align:center;
+    .hero .desc{
+      font-size:1rem;
       color:var(--gray);
-      margin-bottom:48px;
-      max-width:450px;
-      margin-left:auto;margin-right:auto;
-      font-size:.95rem
+      max-width:400px;
+      margin:0 auto 32px;
+      line-height:1.8
     }
+    .hero .desc span{
+      color:var(--green);
+      font-weight:600
+    }
+    .hero .desc .red{color:var(--red)}
 
-    .cards-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-      gap:24px
+    .coming-soon{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      margin-bottom:28px;
+      flex-wrap:wrap
     }
-    .card{
+    .coming-soon .item{
       background:var(--white);
-      border-radius:var(--radius);
-      overflow:hidden;
-      box-shadow:var(--shadow);
-      transition:transform .25s;
-      border:1px solid #f0f0f0
-    }
-    .card:hover{transform:translateY(-6px)}
-    .card-img{
-      height:180px;
-      display:flex;align-items:center;justify-content:center;
-      font-size:3.5rem
-    }
-    .card-img.green{background:linear-gradient(135deg,#d1fae5,#a7f3d0)}
-    .card-img.red{background:linear-gradient(135deg,#fee2e2,#fecaca)}
-    .card-img.warm{background:linear-gradient(135deg,#fef3c7,#fde68a)}
-    .card-body{padding:20px 20px 24px}
-    .card-body h3{font-size:1.1rem;margin-bottom:6px}
-    .card-body p{color:var(--gray);font-size:.9rem}
-    .card-tag{
-      display:inline-block;
-      padding:3px 12px;
-      border-radius:50px;
-      font-size:.75rem;
-      font-weight:600;
-      margin-bottom:10px
-    }
-    .card-tag.green{background:var(--green-light);color:var(--green-dark)}
-    .card-tag.red{background:#fee2e2;color:var(--red)}
-
-    .features{
-      background:var(--light);
-      border-top:2px solid var(--green-light);
-      border-bottom:2px solid var(--green-light)
-    }
-    .features-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-      gap:24px
-    }
-    .feature-item{text-align:center;padding:16px}
-    .feature-item .icon{font-size:2.2rem;margin-bottom:10px}
-    .feature-item h4{font-size:1.05rem;margin-bottom:4px}
-    .feature-item p{color:var(--gray);font-size:.85rem}
-
-    .cta{
+      border-radius:12px;
+      padding:10px 22px;
+      box-shadow:0 2px 12px rgba(0,0,0,.06);
       text-align:center;
-      background:linear-gradient(135deg,var(--green),var(--green-dark));
-      color:#fff;
-      padding:64px 24px
+      min-width:70px
     }
-    .cta h2{font-size:1.8rem;font-weight:800;margin-bottom:10px}
-    .cta p{opacity:.9;margin-bottom:28px;font-size:1.05rem}
-    .cta .btn-white{
-      background:#fff;
-      color:var(--green-dark);
-      padding:13px 34px;
+    .coming-soon .item .num{
+      font-size:1.6rem;
+      font-weight:800;
+      color:var(--green);
+      line-height:1.2
+    }
+    .coming-soon .item .label{
+      font-size:.7rem;
+      color:var(--gray);
+      font-weight:600;
+      text-transform:uppercase
+    }
+
+    .notify-form{
+      display:flex;
+      gap:10px;
+      max-width:420px;
+      margin:0 auto;
+      flex-wrap:wrap;
+      justify-content:center
+    }
+    .notify-form input{
+      flex:1;
+      min-width:200px;
+      padding:12px 18px;
+      border:2px solid #e2e8f0;
+      border-radius:50px;
+      font-size:.95rem;
+      font-family:inherit;
+      outline:none;
+      transition:border .25s
+    }
+    .notify-form input:focus{border-color:var(--green)}
+    .notify-form button{
+      background:var(--green);
+      color:#fff;
+      border:none;
+      padding:12px 28px;
       border-radius:50px;
       font-weight:700;
-      font-size:1rem;
-      transition:all .25s;
-      display:inline-block
+      font-size:.95rem;
+      cursor:pointer;
+      transition:background .25s
     }
-    .cta .btn-white:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.15)}
+    .notify-form button:hover{background:var(--green-dark)}
 
+    /* ===== SOCIAL ===== */
+    .social-links{
+      margin-top:32px;
+      display:flex;
+      justify-content:center;
+      gap:16px
+    }
+    .social-links a{
+      width:44px;height:44px;
+      border-radius:50%;
+      background:var(--white);
+      box-shadow:0 2px 12px rgba(0,0,0,.06);
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.3rem;
+      transition:transform .2s;
+      text-decoration:none
+    }
+    .social-links a:hover{transform:translateY(-3px)}
+
+    /* ===== FOOTER ===== */
     footer{
-      background:var(--black);
+      background:var(--black,#1a1a2e);
       color:#94a3b8;
       text-align:center;
-      padding:28px 24px;
-      font-size:.85rem;
-      border-top:4px solid var(--green)
+      padding:24px;
+      font-size:.82rem
     }
-    footer .footer-logo{font-size:1.3rem;font-weight:800;color:var(--green);margin-bottom:6px}
-    footer a{color:var(--green)}
+    footer div{font-size:1.1rem;font-weight:800;color:var(--green);margin-bottom:4px}
 
-    @media(max-width:768px){
-      header{padding:12px 16px}
-      nav a{margin-right:12px;font-size:.8rem}
-      .hero h1{font-size:2.2rem}
-      .hero .sub{font-size:1.1rem}
-      section{padding:48px 16px}
-      .card-img{height:150px}
-    }
-    @media(max-width:480px){
-      nav{display:none}
-      .hero h1{font-size:1.8rem}
+    /* ===== RESPONSIVE ===== */
+    @media(max-width:600px){
+      header{padding:14px 16px}
+      .hero h1{font-size:2.4rem}
+      .plane{font-size:3rem}
+      .coming-soon .item{padding:8px 16px;min-width:60px}
+      .coming-soon .item .num{font-size:1.3rem}
+      .notify-form input{min-width:100%}
     }
   </style>
 </head>
 <body>
 
-  <!-- ===== HEADER ===== -->
   <header>
-    <div class="logo">
-      <span class="logo-icon">✈</span>
-      ejaza
-    </div>
-    <nav>
-      <a href="#home">الرئيسية</a>
-      <a href="#destinations">وجهات</a>
-      <a href="#features">لماذا</a>
-    </nav>
-    <a href="#cta" class="btn-primary" style="padding:9px 20px;font-size:.85rem">تواصل</a>
+    <div class="logo"><span class="logo-icon">✈</span> ejaza</div>
+    <span class="lang-switch">🌐 قريباً</span>
   </header>
 
-  <!-- ===== HERO ===== -->
-  <section class="hero" id="home">
-    <div>
-      <span class="hero-tag">✈️ عطلات لا تُنسى</span>
+  <section class="hero">
+    <div class="hero-content">
+      <div class="plane">✈️</div>
+      <div class="badge"><span class="dot"></span> قيد الإعداد</div>
       <h1>إجازة</h1>
-      <p class="sub">رحلتك المثالية تبدأ من هنا</p>
-      <p class="desc">نوفّر لك أفضل الوجهات والعروض لحجوزات السفر والفنادق بأفضل الأسعار.</p>
-      <div class="hero-btns">
-        <a href="#destinations" class="btn-primary">استكشف الوجهات</a>
-        <a href="#cta" class="btn-outline">احجز الآن</a>
+      <p class="sub">وجهتك القادمة لم تصل بعد، لكنها في الطريق ✨</p>
+      <p class="desc">
+        نحن نعمل على تصميم تجربة سفر استثنائية.<br>
+        <span>عطلات أحلام</span>، <span class="red">عروض حصرية</span>، و <span>وجهات</span> تنتظرك.
+      </p>
+
+      <div class="coming-soon">
+        <div class="item"><div class="num">∞</div><div class="label">أيام</div></div>
+        <div class="item"><div class="num">∞</div><div class="label">ساعة</div></div>
+        <div class="item"><div class="num">∞</div><div class="label">دقيقة</div></div>
+        <div class="item"><div class="num">∞</div><div class="label">ثانية</div></div>
+      </div>
+
+      <p style="font-size:.85rem;color:var(--gray);margin-bottom:20px">🚀 الانطلاقة قريباً — ترقبوا المفاجأة</p>
+
+      <div class="social-links">
+        <a href="#" title="تويتر">🐦</a>
+        <a href="#" title="انستغرام">📷</a>
+        <a href="#" title="واتساب">💬</a>
       </div>
     </div>
   </section>
 
-  <!-- ===== DESTINATIONS ===== -->
-  <section id="destinations">
-    <div class="container">
-      <h2 class="section-title">🌍 وجهات مميزة</h2>
-      <p class="section-sub">اختر وجهتك القادمة واستعد لمغامرة جديدة</p>
-      <div class="cards-grid">
-
-        <div class="card">
-          <div class="card-img green">🏝️</div>
-          <div class="card-body">
-            <span class="card-tag green">الأكثر طلباً</span>
-            <h3>جزر المالديف</h3>
-            <p>منتجعات فاخرة ومياه فيروزية — تجربة استوائية لا تُضاهى.</p>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-img red">🏔️</div>
-          <div class="card-body">
-            <span class="card-tag red">مغامرات</span>
-            <h3>سويسرا</h3>
-            <p>جبال الألب، الطبيعة الخلابة، والتزلج على الثلوج في أشهر المنتجعات.</p>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-img warm">🏛️</div>
-          <div class="card-body">
-            <span class="card-tag green">تاريخ وثقافة</span>
-            <h3>إسطنبول</h3>
-            <p>بين الشرق والغرب، مدينة تجمع التاريخ العريق والطبيعة الساحرة.</p>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== FEATURES ===== -->
-  <section class="features" id="features">
-    <div class="container">
-      <h2 class="section-title">✨ لماذا إجازة؟</h2>
-      <p class="section-sub">نحن هنا لنجعل رحلتك سهلة وممتعة من البداية إلى النهاية</p>
-      <div class="features-grid">
-        <div class="feature-item">
-          <div class="icon">💎</div>
-          <h4>أفضل الأسعار</h4>
-          <p>نضمن لك أقل الأسعار مع عروض وحجوزات فورية.</p>
-        </div>
-        <div class="feature-item">
-          <div class="icon">🛡️</div>
-          <h4>حجز آمن</h4>
-          <p>جميع الحجوزات مؤمنة بالكامل وبياناتك محمية.</p>
-        </div>
-        <div class="feature-item">
-          <div class="icon">🌐</div>
-          <h4>وجهات حول العالم</h4>
-          <p>أكثر من 500 وجهة حول العالم تناسب جميع الميزانيات.</p>
-        </div>
-        <div class="feature-item">
-          <div class="icon">💬</div>
-          <h4>دعم 24/7</h4>
-          <p>فريق دعم متاح على مدار الساعة للرد على استفساراتك.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== CTA ===== -->
-  <section class="cta" id="cta">
-    <h2>🚀 استعد لرحلتك القادمة</h2>
-    <p>تواصل معنا الآن واحصل على عرض مخصص لوجهتك المفضلة</p>
-    <a class="btn-white" href="#" onclick="Tawk_API && Tawk_API.toggle();return false">💬 تحدث معنا</a>
-  </section>
-
-  <!-- ===== FOOTER ===== -->
   <footer>
-    <div class="footer-logo">✈ ejaza</div>
-    <p>© 2026 جميع الحقوق محفوظة — إجازة للسفر والسياحة</p>
+    <div>✈ ejaza</div>
+    <p>© 2026 جميع الحقوق محفوظة</p>
   </footer>
 
-  <!-- ===== Tawk.to LIVE CHAT ===== -->
+  <!-- Tawk.to -->
   <script type="text/javascript">
   var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
   (function(){
@@ -373,6 +300,5 @@
   s0.parentNode.insertBefore(s1,s0);
   })();
   </script>
-
 </body>
 </html>
