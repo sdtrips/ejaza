@@ -15,52 +15,65 @@
       direction:rtl;
       min-height:100vh;
       display:flex;
-      flex-direction:column
+      flex-direction:column;
+      overflow-x:hidden
     }
     :root{
       --green:#059669;
       --green-dark:#047857;
       --green-light:#d1fae5;
+      --green-pale:#ecfdf5;
       --red:#dc2626;
+      --red-light:#fee2e2;
       --white:#fff;
       --gray:#6b7280;
-      --light:#f0fdf4
+      --gray-light:#f3f4f6
     }
 
     /* ===== HEADER ===== */
     header{
-      padding:16px 40px;
+      padding:16px 48px;
       display:flex;
       justify-content:space-between;
       align-items:center;
       position:fixed;
       top:0;left:0;right:0;
-      z-index:10;
-      background:rgba(255,255,255,.85);
-      backdrop-filter:blur(10px)
+      z-index:100;
+      background:rgba(255,255,255,.75);
+      backdrop-filter:blur(16px) saturate(1.2);
+      border-bottom:1px solid rgba(5,150,105,.08)
     }
     .logo{
       display:flex;
       align-items:center;
-      gap:8px;
-      font-size:1.5rem;
+      gap:10px;
+      font-size:1.4rem;
       font-weight:800;
-      color:var(--green)
+      color:var(--green);
+      letter-spacing:-.5px
     }
     .logo-icon{
-      background:var(--green);
+      background:linear-gradient(135deg,var(--green),#10b981);
       color:#fff;
-      width:36px;height:36px;
+      width:34px;height:34px;
       border-radius:10px;
       display:flex;align-items:center;justify-content:center;
-      font-size:1.1rem
+      font-size:1rem;
+      box-shadow:0 3px 10px rgba(5,150,105,.25)
     }
-    .lang-switch{
-      font-size:.85rem;
-      color:var(--gray);
+    .pill{
+      background:var(--green-pale);
+      color:var(--green-dark);
+      padding:5px 16px;
+      border-radius:50px;
+      font-size:.78rem;
       font-weight:600;
-      cursor:default
+      display:flex;
+      align-items:center;
+      gap:5px;
+      border:1px solid rgba(5,150,105,.15)
     }
+    .pill .d{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.8s infinite}
 
     /* ===== HERO ===== */
     .hero{
@@ -69,182 +82,227 @@
       align-items:center;
       justify-content:center;
       text-align:center;
-      padding:100px 24px 60px;
-      background:linear-gradient(135deg,#ecfdf5 0%,#fef2f2 40%,#fff7ed 100%);
+      padding:120px 24px 60px;
+      background:linear-gradient(160deg,#f0fdf4 0%,#fef2f2 35%,#fff7ed 65%,#f0fdf4 100%);
       position:relative;
       overflow:hidden
     }
-    .hero::before{
-      content:"";position:absolute;top:-80px;right:-80px;
-      width:280px;height:280px;
-      background:radial-gradient(circle,var(--green),transparent 70%);
-      opacity:.06;
-      border-radius:50%
-    }
-    .hero::after{
-      content:"";position:absolute;bottom:-100px;left:-100px;
-      width:350px;height:350px;
-      background:radial-gradient(circle,var(--red),transparent 70%);
-      opacity:.04;
-      border-radius:50%
+
+    /* decorative circles */
+    .hero .orb{position:absolute;border-radius:50%;pointer-events:none}
+    .hero .orb-1{width:500px;height:500px;top:-200px;right:-150px;
+      background:radial-gradient(circle,rgba(5,150,105,.08),transparent 70%)}
+    .hero .orb-2{width:400px;height:400px;bottom:-180px;left:-120px;
+      background:radial-gradient(circle,rgba(220,38,38,.06),transparent 70%)}
+    .hero .orb-3{width:200px;height:200px;top:30%;left:5%;
+      background:radial-gradient(circle,rgba(251,191,36,.1),transparent 70%)}
+
+    /* floating shapes */
+    .shape{position:absolute;font-size:2rem;opacity:.12;pointer-events:none}
+    .shape-1{top:15%;left:8%;animation:float 6s ease-in-out infinite}
+    .shape-2{top:20%;right:10%;animation:float 8s ease-in-out infinite reverse}
+    .shape-3{bottom:25%;left:12%;animation:float 7s ease-in-out infinite 1s}
+    .shape-4{bottom:30%;right:8%;animation:float 9s ease-in-out infinite .5s}
+    @keyframes float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-20px) rotate(8deg)}}
+
+    /* mountain-ish wave bottom */
+    .wave-bottom{
+      position:absolute;
+      bottom:0;left:0;right:0;
+      height:80px;
+      background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 80'%3E%3Cpath fill='%23ffffff' fill-opacity='1' d='M0,40 C360,0 720,80 1080,40 C1260,20 1350,40 1440,40 L1440,80 L0,80 Z'/%3E%3C/svg%3E") no-repeat bottom;
+      background-size:cover
     }
 
-    .hero-content{position:relative;z-index:2}
-    .plane{
-      font-size:4rem;
-      margin-bottom:12px;
+    .hero-content{position:relative;z-index:2;max-width:600px}
+
+    .plane-wrap{
+      position:relative;
       display:inline-block;
-      animation:fly 3s ease-in-out infinite
+      margin-bottom:16px
+    }
+    .plane-wrap .plane{
+      font-size:4.2rem;
+      display:inline-block;
+      animation:fly 3.5s ease-in-out infinite;
+      filter:drop-shadow(0 8px 20px rgba(5,150,105,.2))
     }
     @keyframes fly{
-      0%,100%{transform:translateY(0) rotate(0)}
-      50%{transform:translateY(-18px) rotate(5deg)}
+      0%,100%{transform:translateY(0) rotate(-2deg)}
+      25%{transform:translateY(-12px) rotate(2deg)}
+      50%{transform:translateY(-22px) rotate(-1deg)}
+      75%{transform:translateY(-10px) rotate(3deg)}
+    }
+    .plane-wrap .trail{
+      position:absolute;
+      bottom:14px;left:-70px;
+      font-size:1.8rem;
+      opacity:.25;
+      letter-spacing:-6px;
+      animation:trail 3.5s ease-in-out infinite
+    }
+    @keyframes trail{
+      0%,100%{opacity:.15;transform:translateX(0)}
+      50%{opacity:.3;transform:translateX(8px)}
     }
 
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      background:rgba(255,255,255,.7);
+      backdrop-filter:blur(4px);
+      color:var(--green-dark);
+      padding:6px 20px;
+      border-radius:50px;
+      font-weight:600;
+      font-size:.82rem;
+      margin-bottom:18px;
+      border:1px solid rgba(5,150,105,.12);
+      box-shadow:0 2px 8px rgba(0,0,0,.02)
+    }
+    .badge .dl{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.8s infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.7)}}
+
     .hero h1{
-      font-size:3.5rem;
+      font-size:4.2rem;
       font-weight:900;
-      color:var(--green);
-      margin-bottom:6px
+      background:linear-gradient(135deg,var(--green),#10b981,var(--green-dark));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+      margin-bottom:8px;
+      letter-spacing:-1.5px;
+      line-height:1.1
     }
     .hero .sub{
       font-size:1.2rem;
       color:var(--gray);
-      margin-bottom:16px;
+      margin-bottom:6px;
       font-weight:500
     }
-    .hero .badge{
+    .hero .sub span{
+      background:linear-gradient(135deg,var(--green),var(--red));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+      font-weight:700
+    }
+    .hero .desc{
+      font-size:1rem;
+      color:#8892a0;
+      max-width:400px;
+      margin:8px auto 32px;
+      line-height:1.9
+    }
+    .hero .desc em{font-style:normal;color:var(--green);font-weight:600}
+
+    /* countdown */
+    .counter{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      margin-bottom:28px
+    }
+    .counter .c{
+      background:rgba(255,255,255,.6);
+      backdrop-filter:blur(6px);
+      border-radius:14px;
+      padding:6px 18px;
+      text-align:center;
+      min-width:62px;
+      border:1px solid rgba(5,150,105,.08);
+      box-shadow:0 4px 16px rgba(0,0,0,.02);
+      transition:transform .2s
+    }
+    .counter .c:hover{transform:translateY(-3px)}
+    .counter .c .n{
+      font-size:1.5rem;
+      font-weight:800;
+      background:linear-gradient(135deg,var(--green),#10b981);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+      line-height:1.3
+    }
+    .counter .c .l{
+      font-size:.65rem;
+      color:var(--gray);
+      font-weight:600;
+      letter-spacing:.5px
+    }
+    .counter .sep{font-size:1.2rem;color:#d1d5db;font-weight:300}
+
+    .tagline{
       display:inline-flex;
       align-items:center;
       gap:6px;
-      background:var(--green-light);
-      color:var(--green-dark);
+      font-size:.85rem;
+      color:#94a3b8;
+      margin-bottom:24px;
       padding:6px 18px;
       border-radius:50px;
-      font-weight:600;
-      font-size:.9rem;
-      margin-bottom:20px
+      background:rgba(255,255,255,.4)
     }
-    .hero .badge .dot{
-      width:8px;height:8px;
-      border-radius:50%;
-      background:var(--green);
-      animation:pulse 1.5s infinite
-    }
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    .tagline .spark{animation:spark 2s infinite;display:inline-block}
+    @keyframes spark{0%,100%{opacity:.4}50%{opacity:1;transform:scale(1.1)}}
 
-    .hero .desc{
-      font-size:1rem;
-      color:var(--gray);
-      max-width:400px;
-      margin:0 auto 32px;
-      line-height:1.8
-    }
-    .hero .desc span{
-      color:var(--green);
-      font-weight:600
-    }
-    .hero .desc .red{color:var(--red)}
-
-    .coming-soon{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      margin-bottom:28px;
-      flex-wrap:wrap
-    }
-    .coming-soon .item{
-      background:var(--white);
-      border-radius:12px;
-      padding:10px 22px;
-      box-shadow:0 2px 12px rgba(0,0,0,.06);
-      text-align:center;
-      min-width:70px
-    }
-    .coming-soon .item .num{
-      font-size:1.6rem;
-      font-weight:800;
-      color:var(--green);
-      line-height:1.2
-    }
-    .coming-soon .item .label{
-      font-size:.7rem;
-      color:var(--gray);
-      font-weight:600;
-      text-transform:uppercase
-    }
-
-    .notify-form{
-      display:flex;
-      gap:10px;
-      max-width:420px;
-      margin:0 auto;
-      flex-wrap:wrap;
-      justify-content:center
-    }
-    .notify-form input{
-      flex:1;
-      min-width:200px;
-      padding:12px 18px;
-      border:2px solid #e2e8f0;
-      border-radius:50px;
-      font-size:.95rem;
-      font-family:inherit;
-      outline:none;
-      transition:border .25s
-    }
-    .notify-form input:focus{border-color:var(--green)}
-    .notify-form button{
-      background:var(--green);
-      color:#fff;
-      border:none;
-      padding:12px 28px;
-      border-radius:50px;
-      font-weight:700;
-      font-size:.95rem;
-      cursor:pointer;
-      transition:background .25s
-    }
-    .notify-form button:hover{background:var(--green-dark)}
-
-    /* ===== SOCIAL ===== */
-    .social-links{
-      margin-top:32px;
+    .social{
       display:flex;
       justify-content:center;
-      gap:16px
+      gap:12px;
+      margin-top:6px
     }
-    .social-links a{
-      width:44px;height:44px;
+    .social a{
+      width:40px;height:40px;
       border-radius:50%;
-      background:var(--white);
-      box-shadow:0 2px 12px rgba(0,0,0,.06);
+      background:rgba(255,255,255,.7);
+      backdrop-filter:blur(4px);
+      border:1px solid rgba(0,0,0,.04);
       display:flex;align-items:center;justify-content:center;
-      font-size:1.3rem;
-      transition:transform .2s;
-      text-decoration:none
+      font-size:1.15rem;
+      text-decoration:none;
+      transition:all .25s;
+      box-shadow:0 2px 8px rgba(0,0,0,.02)
     }
-    .social-links a:hover{transform:translateY(-3px)}
+    .social a:hover{
+      transform:translateY(-4px);
+      box-shadow:0 8px 20px rgba(0,0,0,.06);
+      border-color:rgba(5,150,105,.15)
+    }
 
     /* ===== FOOTER ===== */
     footer{
-      background:var(--black,#1a1a2e);
-      color:#94a3b8;
+      background:#0f172a;
+      color:#64748b;
       text-align:center;
-      padding:24px;
-      font-size:.82rem
+      padding:20px 24px;
+      font-size:.8rem;
+      position:relative;
+      z-index:2
     }
-    footer div{font-size:1.1rem;font-weight:800;color:var(--green);margin-bottom:4px}
+    footer .fl{font-size:.95rem;font-weight:800;color:var(--green);margin-bottom:2px;letter-spacing:-.3px}
 
     /* ===== RESPONSIVE ===== */
-    @media(max-width:600px){
-      header{padding:14px 16px}
-      .hero h1{font-size:2.4rem}
-      .plane{font-size:3rem}
-      .coming-soon .item{padding:8px 16px;min-width:60px}
-      .coming-soon .item .num{font-size:1.3rem}
-      .notify-form input{min-width:100%}
+    @media(max-width:640px){
+      header{padding:14px 18px}
+      .logo{font-size:1.2rem}
+      .hero h1{font-size:2.8rem}
+      .plane-wrap .plane{font-size:3.2rem}
+      .plane-wrap .trail{font-size:1.4rem;left:-50px}
+      .counter .c{padding:4px 12px;min-width:50px}
+      .counter .c .n{font-size:1.2rem}
+      .counter .sep{display:none}
+      .hero{padding:100px 18px 40px}
+      .wave-bottom{height:40px}
+      .badge{font-size:.75rem}
+    }
+    @media(max-width:400px){
+      .hero h1{font-size:2.2rem}
+      .counter .c{min-width:44px;padding:3px 8px}
+      .counter .c .n{font-size:1rem}
+      .counter .c .l{font-size:.6rem}
     }
   </style>
 </head>
@@ -252,39 +310,64 @@
 
   <header>
     <div class="logo"><span class="logo-icon">✈</span> ejaza</div>
-    <span class="lang-switch">🌐 قريباً</span>
+    <span class="pill"><span class="d"></span> قيد الإعداد</span>
   </header>
 
   <section class="hero">
-    <div class="hero-content">
-      <div class="plane">✈️</div>
-      <div class="badge"><span class="dot"></span> قيد الإعداد</div>
-      <h1>إجازة</h1>
-      <p class="sub">وجهتك القادمة لم تصل بعد، لكنها في الطريق ✨</p>
-      <p class="desc">
-        نحن نعمل على تصميم تجربة سفر استثنائية.<br>
-        <span>عطلات أحلام</span>، <span class="red">عروض حصرية</span>، و <span>وجهات</span> تنتظرك.
-      </p>
+    <!-- orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
 
-      <div class="coming-soon">
-        <div class="item"><div class="num">∞</div><div class="label">أيام</div></div>
-        <div class="item"><div class="num">∞</div><div class="label">ساعة</div></div>
-        <div class="item"><div class="num">∞</div><div class="label">دقيقة</div></div>
-        <div class="item"><div class="num">∞</div><div class="label">ثانية</div></div>
+    <!-- floating shapes -->
+    <div class="shape shape-1">🏝️</div>
+    <div class="shape shape-2">🌴</div>
+    <div class="shape shape-3">⛵</div>
+    <div class="shape shape-4">🌊</div>
+
+    <!-- wave -->
+    <div class="wave-bottom"></div>
+
+    <div class="hero-content">
+
+      <div class="plane-wrap">
+        <span class="plane">✈️</span>
+        <span class="trail">···</span>
       </div>
 
-      <p style="font-size:.85rem;color:var(--gray);margin-bottom:20px">🚀 الانطلاقة قريباً — ترقبوا المفاجأة</p>
+      <div class="badge"><span class="dl"></span> قيد الإعداد</div>
 
-      <div class="social-links">
+      <h1>إجازة</h1>
+      <p class="sub">وجهتك القادمة <span>في الطريق</span> ✨</p>
+      <p class="desc">
+        نصنع لك تجربة سفر استثنائية — <em>عطلات أحلام</em>، عروض حصرية، وأجمل وجهات العالم.
+      </p>
+
+      <div class="counter">
+        <div class="c"><div class="n">∞</div><div class="l">يوم</div></div>
+        <span class="sep">·</span>
+        <div class="c"><div class="n">∞</div><div class="l">ساعة</div></div>
+        <span class="sep">·</span>
+        <div class="c"><div class="n">∞</div><div class="l">دقيقة</div></div>
+        <span class="sep">·</span>
+        <div class="c"><div class="n">∞</div><div class="l">ثانية</div></div>
+      </div>
+
+      <div class="tagline">
+        <span class="spark">✨</span> الانطلاقة قريباً — ترقّب
+      </div>
+
+      <div class="social">
         <a href="#" title="تويتر">🐦</a>
         <a href="#" title="انستغرام">📷</a>
         <a href="#" title="واتساب">💬</a>
       </div>
+
     </div>
   </section>
 
   <footer>
-    <div>✈ ejaza</div>
+    <div class="fl">✈ ejaza</div>
     <p>© 2026 جميع الحقوق محفوظة</p>
   </footer>
 
