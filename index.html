@@ -389,9 +389,35 @@
     <p>© 2026 جميع الحقوق محفوظة</p>
   </footer>
 
-  <!-- Tawk.to -->
+  <!-- Tawk.to — جلسة مؤقتة: كل تحديث = شات جديد (الموظف يشوف كل شيء) -->
   <script type="text/javascript">
-  var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+  // 🧹 مسح كوكيز Tawk.to قبل التحميل
+  function clearTawkCookies() {
+    var cookies = document.cookie.split(';');
+    for (var i = 0; i < cookies.length; i++) {
+      var name = cookies[i].trim().split('=')[0];
+      if (name.toLowerCase().includes('tawk')) {
+        document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + ';';
+      }
+    }
+    // localStorage
+    var keys = Object.keys(localStorage);
+    for (var j = 0; j < keys.length; j++) {
+      if (keys[j].toLowerCase().includes('tawk')) {
+        localStorage.removeItem(keys[j]);
+      }
+    }
+  }
+  clearTawkCookies();
+
+  // 🆕 جلسة جديدة مع كل تحميل
+  var Tawk_API = Tawk_API || {};
+  Tawk_API.onLoad = function() {
+    Tawk_API.reset();
+    clearTawkCookies();
+  };
+  var Tawk_LoadStart = new Date();
   (function(){
   var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
   s1.async=true;
