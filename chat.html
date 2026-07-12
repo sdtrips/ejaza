@@ -115,8 +115,8 @@
     //    (القيمة في env var تلغي القيمة الافتراضية)
     // =====================================================================
     const CHAT_PASSWORD = (function(){
-      var v = '$CHAT_PASSWORD';
-      return v === '$CHAT_PASSWORD' ? 'ejaza123' : v;
+      var v = '__CHAT_PASSWORD__';
+      return v === '__CHAT_PASSWORD__' ? 'ejaza123' : v;
     })();
 
     // =====================================================================
@@ -166,7 +166,7 @@
       window.CRISP_READY = true;
 
       window.$crisp = [];
-      window.CRISP_WEBSITE_ID = '$CRISP_WEBSITE_ID';  // ← يحقن من Coolify env var
+      window.CRISP_WEBSITE_ID = '__CRISP_WEBSITE_ID__';  // ← يحقن من Coolify env var
 
       // تعريف الدومين اللي عنده الكوكيز
       window.CRISP_COOKIE_DOMAIN = window.location.hostname;

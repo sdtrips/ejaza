@@ -1,23 +1,18 @@
 FROM nginx:alpine
 
-RUN apk add --no-cache gettext
-
-# نسخ الملفات
+# نسخ ملفات الموقع
 COPY . /usr/share/nginx/html
 
-# سكريبت دخول — يحقن متغيرات البيئة في chat.html ثم يشغل nginx
-COPY <<"EOF" /docker-entrypoint.sh
-#!/bin/sh
-# حقن المتغيرات — يستبدل $CHAT_PASSWORD و $CRISP_WEBSITE_ID فقط
-envsubst '$CHAT_PASSWORD $CRISP_WEBSITE_ID' < /usr/share/nginx/html/chat.html > /usr/share/nginx/html/chat.html.tmp
-mv /usr/share/nginx/html/chat.html.tmp /usr/share/nginx/html/chat.html
-
-# تشغيل nginx بالواجهة (daemon off)
-nginx -g 'daemon off;'
-EOF
-
-RUN chmod +x /docker-entrypoint.sh
+# إنشاء سكريبت التشغيل (طريقة تقليدية مضمونة)
+RUN echo '#!/bin/sh' > /docker-entrypoint.sh \
+  && echo '' >> /docker-entrypoint.sh \
+  && echo '# حقن كلمة السر من متغير البيئة' >> /docker-entrypoint.sh \
+  && echo "sed -i \"s/__CHAT_PASSWORD__/\${CHAT_PASSWORD:-ejaza123}/g\" /usr/share/nginx/html/chat.html" >> /docker-entrypoint.sh \
+  && echo '# حقن Crisp Website ID' >> /docker-entrypoint.sh \
+  && echo "sed -i \"s/__CRISP_WEBSITE_ID__/\${CRISP_WEBSITE_ID:-YOUR_CRISP_WEBSITE_ID}/g\" /usr/share/nginx/html/chat.html" >> /docker-entrypoint.sh \
+  && echo '' >> /docker-entrypoint.sh \
+  && echo 'exec nginx -g "daemon off;"' >> /docker-entrypoint.sh \
+  && chmod +x /docker-entrypoint.sh
 
 EXPOSE 80
-
 CMD ["/docker-entrypoint.sh"]
