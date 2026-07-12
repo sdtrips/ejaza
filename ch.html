@@ -259,16 +259,24 @@
   <!-- ============================================================ -->
   <script>
     // =====================================================================
-    //  🔐 كلمة المرور
-    //  -----------------------------------------------
-    //  • محلياً (تستعمل الملف مباشرة): كلمة السر = ejaza123
-    //  • على Coolify: ضع CHAT_PASSWORD في Environment Variables
-    //    (القيمة في env var تلغي القيمة الافتراضية)
+    //  🔐 كلمة المرور — تقرأ من متغير البيئة عبر Dockerfile (Coolify)
+    //  =====================================================================
+    //  Dockerfile يستبدل __CHAT_PASSWORD__ بقيمة CHAT_PASSWORD من env
+    //  إذا ما صار استبدال (التطوير المحلي) → fallback = ejaza123
     // =====================================================================
-    const CHAT_PASSWORD = (function(){
+    const CHAT_PASSWORD = (function() {
       var v = '__CHAT_PASSWORD__';
-      return v === '__CHAT_PASSWORD__' ? 'ejaza123' : v;
+      var isPlaceholder = v === '__CHAT_PASSWORD__';
+      var finalPass = isPlaceholder ? 'ejaza123' : v;
+      console.log('[EJZ-Chat] Password source:', isPlaceholder ? 'default (ejaza123)' : 'Coolify env var');
+      return finalPass;
     })();
+
+    // =====================================================================
+    //  🔧 تشخيص: تحقق من استبدال المتغيرات الأخرى
+    // =====================================================================
+    console.log('[EJZ-Chat] CRISP_WEBSITE_ID:', '__CRISP_WEBSITE_ID__'.includes('__') ? 'NOT SET (placeholder)' : 'SET');
+    console.log('[EJZ-Chat] POSTHOG_KEY:', '__POSTHOG_API_KEY__'.includes('__') ? 'NOT SET' : 'SET');
 
     // =====================================================================
     //  🍪 إعدادات الجلسة — التحكم بالكوكيز

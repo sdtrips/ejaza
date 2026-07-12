@@ -389,11 +389,12 @@
     <p>© 2026 جميع الحقوق محفوظة</p>
   </footer>
 
-  <!-- Tawk.to — كل تحديث = زائر جديد (الموظف يشوف كل شيء في لوحته) -->
+  <!-- Tawk.to — كل تحديث = زائر جديد تماماً (الموظف يشوف التاريخ في لوحته) -->
   <script type="text/javascript">
   (function() {
-    // ===== 1. مسح كل كوكيز + تخزين Tawk.to =====
-    function nukeTawk() {
+    // ===== 1. مسح شامل: كوكيز + localStorage + sessionStorage + IndexedDB =====
+    function nukeAllTawkStorage() {
+      // Cookies
       document.cookie.split(';').forEach(function(c) {
         var n = c.trim().split('=')[0];
         if (n.toLowerCase().indexOf('tawk') !== -1) {
@@ -401,13 +402,25 @@
           document.cookie = n + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + location.hostname + ';';
         }
       });
-      for (var k in localStorage)
-        if (k.toLowerCase().indexOf('tawk') !== -1) localStorage.removeItem(k);
+      // localStorage
+      for (var k in localStorage) if (k.toLowerCase().indexOf('tawk') !== -1) localStorage.removeItem(k);
+      // sessionStorage
+      for (var k2 in sessionStorage) if (k2.toLowerCase().indexOf('tawk') !== -1) sessionStorage.removeItem(k2);
+      // IndexedDB (best effort)
+      if (window.indexedDB && indexedDB.databases) {
+        indexedDB.databases().then(function(dbs) {
+          dbs.forEach(function(db) {
+            if (db.name && db.name.toLowerCase().indexOf('tawk') !== -1) {
+              indexedDB.deleteDatabase(db.name);
+            }
+          });
+        }).catch(function() {});
+      }
     }
-    nukeTawk();
+    nukeAllTawkStorage();
 
-    // ===== 2. هوية عشوائية جديدة كل مرة — ما يقدر يربطك =====
-    var rid = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    // ===== 2. هوية عشوائية فريدة لكل تحميل — يكسر التتبع =====
+    var rid = Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
     window.Tawk_API = window.Tawk_API || {};
     window.Tawk_API.visitor = {
       name: 'ضيف_' + rid,
@@ -415,7 +428,8 @@
     };
     window.Tawk_API.onLoad = function() {
       window.Tawk_API.reset();
-      setTimeout(nukeTawk, 600);  // نمسح ثاني بعد ما يستقر
+      setTimeout(nukeAllTawkStorage, 600);
+      setTimeout(nukeAllTawkStorage, 3000); // تنظيف ثالث للتأكد
     };
 
     // ===== 3. تحميل Tawk.to =====
@@ -426,6 +440,9 @@
     s.charset = 'UTF-8';
     s.setAttribute('crossorigin', '*');
     document.head.appendChild(s);
+
+    // تشخيص في الكونسول
+    console.log('[EJZ-Tawk] New session:', rid, '| Cookies cleared:', document.cookie.length === 0 || !document.cookie.includes('tawk'));
   })();
   </script>
 </body>
