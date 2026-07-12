@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إجازة — الدردشة الخاصة</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E✈️%3C/text%3E%3C/svg%3E">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      font-family:'Segoe UI',Tahoma,sans-serif;
+      color:#1a1a2e;
+      background:linear-gradient(135deg,#059669,#047857);
+      line-height:1.7;
+      direction:rtl;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    /* ===== شاشة كلمة السر ===== */
+    .gate{
+      background:#fff;
+      border-radius:24px;
+      padding:40px 32px;
+      max-width:420px;
+      width:90%;
+      text-align:center;
+      box-shadow:0 20px 60px rgba(0,0,0,.15);
+    }
+    .gate h1{font-size:28px;color:#059669;margin-bottom:8px}
+    .gate p{color:#6b7280;margin-bottom:24px;font-size:14px}
+    .gate input{
+      width:100%;
+      padding:14px 16px;
+      border:2px solid #e5e7eb;
+      border-radius:12px;
+      font-size:16px;
+      text-align:center;
+      outline:none;
+      transition:border-color .2s;
+    }
+    .gate input:focus{border-color:#059669}
+    .gate .error{color:#dc2626;font-size:13px;margin-top:8px;display:none}
+    .gate button{
+      margin-top:16px;
+      width:100%;
+      padding:14px;
+      background:#059669;
+      color:#fff;
+      border:none;
+      border-radius:12px;
+      font-size:16px;
+      cursor:pointer;
+      transition:background .2s;
+    }
+    .gate button:hover{background:#047857}
+    /* ===== الشات (يظهر بعد فتح القفل) ===== */
+    .chat-area{display:none;width:100%;height:100vh;position:relative}
+    .chat-area .toolbar{
+      position:fixed;top:0;left:0;right:0;
+      background:rgba(255,255,255,.95);
+      backdrop-filter:blur(8px);
+      padding:12px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      z-index:999;
+      border-bottom:1px solid #e5e7eb;
+      direction:rtl;
+    }
+    .toolbar .logo{font-weight:700;color:#059669;font-size:18px}
+    .toolbar .status{font-size:13px;color:#6b7280}
+    /* Crisp سيظهر هنا — نترك مسافة للـ toolbar */
+    #crisp-container{height:100vh;width:100%}
+    /* ===== فقاعة التأكيد (حذف الجلسة) ===== */
+    .toast{
+      position:fixed;bottom:100px;left:50%;transform:translateX(-50%);
+      background:#1f2937;color:#fff;padding:12px 24px;
+      border-radius:12px;font-size:13px;z-index:9999;
+      opacity:0;transition:opacity .3s;
+      pointer-events:none;
+    }
+    .toast.show{opacity:1}
+  </style>
+</head>
+<body>
+
+  <!-- ===== شاشة القفل ===== -->
+  <div class="gate" id="gate">
+    <h1>🔒 دردشة خاصة</h1>
+    <p>أدخل كلمة المرور للدخول إلى الدردشة</p>
+    <input type="password" id="passInput" placeholder="كلمة المرور" autocomplete="off">
+    <div class="error" id="errorMsg">❌ كلمة المرور غير صحيحة</div>
+    <button onclick="unlock()">فتح الدردشة</button>
+  </div>
+
+  <!-- ===== منطقة الشات ===== -->
+  <div class="chat-area" id="chatArea">
+    <div class="toolbar">
+      <div class="logo">✈️ إجازة</div>
+      <div class="status">🔒 دردشة مؤقتة — بمجرد إغلاقك تختفي المحادثة</div>
+    </div>
+    <!-- Crisp يتحكم بنفسه — فقط نخبئ Tawk.to -->
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- ============================================================ -->
+  <!-- Crisp.chat — يتحمّل فقط بعد فتح القفل -->
+  <!-- ============================================================ -->
+  <script>
+    // =====================================================================
+    //  🔐 كلمة المرور
+    //  غيّرها من هنا
+    // =====================================================================
+    const CHAT_PASSWORD='$CHAT_PASSWORD';  // ← تحقن من Coolify env var
+
+    // =====================================================================
+    //  🍪 إعدادات الجلسة — التحكم بالكوكيز
+    // =====================================================================
+    const CONFIG = {
+      clearCookiesOnExit: true,      // ← هل نمسح الكوكيز عند الخروج؟
+      crispSessionReset: true,       // ← هل نعيد تعيين جلسة Crisp عند الدخول؟
+      sessionStorageOnly: true,      // ← نخزّن البيانات في SessionStorage فقط (يزول بإغلاق التبويب)
+    };
+
+    // =====================================================================
+    //  فتح القفل
+    // =====================================================================
+    function unlock() {
+      const pass = document.getElementById('passInput').value;
+      if (pass !== CHAT_PASSWORD) {
+        document.getElementById('errorMsg').style.display = 'block';
+        return;
+      }
+      // إخفاء القفل — إظهار الشات
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('chatArea').style.display = 'block';
+
+      // تسجيل الدخول في SessionStorage فقط (يزول بإغلاق التبويب)
+      if (CONFIG.sessionStorageOnly) {
+        sessionStorage.setItem('ejaza_chat_unlocked', 'true');
+      }
+
+      // تحميل Crisp بعد فتح القفل (ما يتحمّلش إلا المحتاجين)
+      loadCrisp();
+    }
+
+    // التحقق إذا كان فاتح القفل قبل كذا (SessionStorage)
+    if (sessionStorage.getItem('ejaza_chat_unlocked') === 'true') {
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('chatArea').style.display = 'block';
+      loadCrisp();
+    }
+
+    // =====================================================================
+    //  🍪 تحميل Crisp.chat
+    // =====================================================================
+    function loadCrisp() {
+      // نتأكد ما تحمّل مرتين
+      if (window.CRISP_READY) return;
+      window.CRISP_READY = true;
+
+      window.$crisp = [];
+      window.CRISP_WEBSITE_ID = '$CRISP_WEBSITE_ID';  // ← تحقن من Coolify env var
+
+      // تعريف الدومين اللي عنده الكوكيز
+      window.CRISP_COOKIE_DOMAIN = window.location.hostname;
+
+      (function() {
+        var d = document;
+        var s = d.createElement('script');
+        s.src = 'https://client.crisp.chat/l.js';
+        s.async = true;
+        s.charset = 'utf-8';
+        d.getElementsByTagName('head')[0].appendChild(s);
+      })();
+
+      // 🔄 إعادة تعيين الجلسة — كل دخول جلسة جديدة (بدون سجل)
+      if (CONFIG.crispSessionReset) {
+        $crisp.push(['do', 'session:reset']);
+      }
+
+      // تعيين اسم الزائر لشيء عشوائي (خصوصية)
+      $crisp.push(['set', 'session:segments', [['guest', Date.now().toString(36)]]]);
+
+      // عند إرسال رسالة — نحدّث SessionStorage عشان نعرف متى نمسح
+      $crisp.push(['on', 'message:sent', function() {
+        sessionStorage.setItem('ejaza_chat_has_msgs', 'true');
+      }]);
+    }
+
+    // =====================================================================
+    //  🧹 عند مغادرة الصفحة — نمسح الجلسة نهائياً
+    // =====================================================================
+    if (CONFIG.clearCookiesOnExit) {
+      window.addEventListener('beforeunload', function() {
+        // مسح كوكيز Crisp
+        clearCookie('crisp-client');
+        clearCookie('crisp-client%2Fsession');
+        clearCookie('crisp-client%2Fsession%2Fthumb');
+
+        // مسح أي كوكيز تحوي crisp
+        document.cookie.split(';').forEach(function(c) {
+          var name = c.trim().split('=')[0];
+          if (name.toLowerCase().includes('crisp')) {
+            clearCookie(name);
+          }
+        });
+
+        // مسح SessionStorage (يفترض يروح بإغلاق التبويب، لكن نضمن)
+        sessionStorage.removeItem('ejaza_chat_unlocked');
+        sessionStorage.removeItem('ejaza_chat_has_msgs');
+      });
+    }
+
+    // =====================================================================
+    //  🍪 دالة مسح الكوكيز
+    // =====================================================================
+    function clearCookie(name) {
+      // المسار الرئيسي
+      document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax';
+      // مع subdomain
+      document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + '; SameSite=Lax';
+    }
+
+    // =====================================================================
+    //  📱 Toast (إشعارات)
+    // =====================================================================
+    function showToast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 3000);
+    }
+
+    console.log('✅ دردشة إجازة — جلسة مؤقتة: الكوكيز تُمسح عند الخروج');
+  </script>
+
+</body>
+</html>
