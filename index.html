@@ -75,6 +75,21 @@
     }
     .pill .d{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.8s infinite}
 
+    /* ===== HEADER LINKS ===== */
+    header{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;position:relative;z-index:10}
+    .header-links{display:flex;align-items:center;gap:10px}
+    .header-btn{
+      background:var(--green);
+      color:#fff;
+      padding:6px 16px;
+      border-radius:50px;
+      font-size:.78rem;
+      font-weight:600;
+      text-decoration:none;
+      transition:all .2s;
+    }
+    .header-btn:hover{background:var(--green-dark)}
+
     /* ===== HERO ===== */
     .hero{
       flex:1;
@@ -272,26 +287,6 @@
       border-color:rgba(5,150,105,.15)
     }
 
-    /* ===== زر تواصل للمسجلين ===== */
-    .chat-btn{
-      display:inline-block;
-      margin-top:20px;
-      padding:14px 28px;
-      background:var(--green);
-      color:#fff;
-      border-radius:14px;
-      font-size:15px;
-      font-weight:600;
-      text-decoration:none;
-      transition:all .25s;
-      box-shadow:0 4px 14px rgba(5,150,105,.25);
-    }
-    .chat-btn:hover{
-      background:var(--green-dark);
-      transform:translateY(-2px);
-      box-shadow:0 6px 20px rgba(5,150,105,.35);
-    }
-
     /* ===== FOOTER ===== */
     footer{
       background:#0f172a;
@@ -330,7 +325,10 @@
 
   <header>
     <div class="logo"><span class="logo-icon">✈</span> ejaza</div>
-    <span class="pill"><span class="d"></span> قيد الإعداد</span>
+    <div class="header-links">
+      <span class="pill"><span class="d"></span> قيد الإعداد</span>
+      <a href="chat.html" class="header-btn">🔒 تواصل للمسجلين</a>
+    </div>
   </header>
 
   <section class="hero">
@@ -382,8 +380,6 @@
         <a href="#" title="انستغرام">📷</a>
         <a href="#" title="واتساب">💬</a>
       </div>
-
-      <a href="chat.html" class="chat-btn">🔒 تواصل للمسجلين</a>
 
     </div>
   </section>

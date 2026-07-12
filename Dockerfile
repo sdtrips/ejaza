@@ -1,18 +1,9 @@
 FROM nginx:alpine
-
-# نسخ ملفات الموقع
 COPY . /usr/share/nginx/html
 
-# إنشاء سكريبت التشغيل (طريقة تقليدية مضمونة)
-RUN echo '#!/bin/sh' > /docker-entrypoint.sh \
-  && echo '' >> /docker-entrypoint.sh \
-  && echo '# حقن كلمة السر من متغير البيئة' >> /docker-entrypoint.sh \
-  && echo "sed -i \"s/__CHAT_PASSWORD__/\${CHAT_PASSWORD:-ejaza123}/g\" /usr/share/nginx/html/chat.html" >> /docker-entrypoint.sh \
-  && echo '# حقن Crisp Website ID' >> /docker-entrypoint.sh \
-  && echo "sed -i \"s/__CRISP_WEBSITE_ID__/\${CRISP_WEBSITE_ID:-YOUR_CRISP_WEBSITE_ID}/g\" /usr/share/nginx/html/chat.html" >> /docker-entrypoint.sh \
-  && echo '' >> /docker-entrypoint.sh \
-  && echo 'exec nginx -g "daemon off;"' >> /docker-entrypoint.sh \
-  && chmod +x /docker-entrypoint.sh
-
-EXPOSE 80
-CMD ["/docker-entrypoint.sh"]
+# استخدام CMD بدل entrypoint script — مضمون 100% وأبسط
+CMD sed -i "s/__CHAT_PASSWORD__/${CHAT_PASSWORD:-ejaza123}/g" /usr/share/nginx/html/chat.html \
+  && sed -i "s/__CRISP_WEBSITE_ID__/${CRISP_WEBSITE_ID:-YOUR_ID}/g" /usr/share/nginx/html/chat.html \
+  && sed -i "s/__POSTHOG_API_KEY__/${POSTHOG_API_KEY:-}/g" /usr/share/nginx/html/chat.html \
+  && sed -i "s/__POSTHOG_HOST__/${POSTHOG_HOST:-https:\/\/us.i.posthog.com}/g" /usr/share/nginx/html/chat.html \
+  && nginx -g "daemon off;"
