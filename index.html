@@ -387,12 +387,15 @@
   <footer>
     <div class="fl">✈ ejaza</div>
     <p>© 2026 جميع الحقوق محفوظة</p>
+    <!-- VERSION: 2025-01-15-v3-tawk-nuke -->
   </footer>
 
   <!-- Tawk.to — كل تحديث = زائر جديد تماماً (الموظف يشوف التاريخ في لوحته) -->
   <script type="text/javascript">
   (function() {
-    // ===== 1. مسح شامل: كوكيز + localStorage + sessionStorage + IndexedDB =====
+    // VERSION: 2025-01-15-v3-tawk-nuke
+    console.log('[EJZ-Tawk] VERSION: 2025-01-15-v3-tawk-nuke');
+    // ===== 1. مسح شامل فوري: كوكيز + localStorage + sessionStorage + IndexedDB =====
     function nukeAllTawkStorage() {
       // Cookies
       document.cookie.split(';').forEach(function(c) {
@@ -417,6 +420,7 @@
         }).catch(function() {});
       }
     }
+    // مسح فوري قبل أي شي
     nukeAllTawkStorage();
 
     // ===== 2. هوية عشوائية فريدة لكل تحميل — يكسر التتبع =====
@@ -427,9 +431,10 @@
       email: rid + '@tmp.local'
     };
     window.Tawk_API.onLoad = function() {
-      window.Tawk_API.reset();
+      try { window.Tawk_API.reset(); } catch(e) {}
       setTimeout(nukeAllTawkStorage, 600);
-      setTimeout(nukeAllTawkStorage, 3000); // تنظيف ثالث للتأكد
+      setTimeout(nukeAllTawkStorage, 3000);
+      setTimeout(nukeAllTawkStorage, 8000);
     };
 
     // ===== 3. تحميل Tawk.to =====

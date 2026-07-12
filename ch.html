@@ -254,38 +254,47 @@
 
   <div class="toast" id="toast"></div>
 
-  <!-- ============================================================ -->
-  <!-- Crisp.chat — يتحمّل فقط بعد فتح القفل -->
-  <!-- ============================================================ -->
-  <script>
-    // =====================================================================
-    //  🔐 كلمة المرور — تقرأ من متغير البيئة عبر Dockerfile (Coolify)
-    //  =====================================================================
-    //  Dockerfile يستبدل __CHAT_PASSWORD__ بقيمة CHAT_PASSWORD من env
-    //  إذا ما صار استبدال (التطوير المحلي) → fallback = ejaza123
-    // =====================================================================
-    const CHAT_PASSWORD = (function() {
-      var v = '__CHAT_PASSWORD__';
-      var isPlaceholder = v === '__CHAT_PASSWORD__';
-      var finalPass = isPlaceholder ? 'ejaza123' : v;
-      console.log('[EJZ-Chat] Password source:', isPlaceholder ? 'default (ejaza123)' : 'Coolify env var');
-      return finalPass;
-    })();
+    <!-- ============================================================ -->
+    <!-- Crisp.chat — يتحمّل فقط بعد فتح القفل -->
+    <!-- ============================================================ -->
+    <script>
+      // VERSION: 2025-01-15-v3-env-fix
+      console.log('[EJZ-Chat] VERSION: 2025-01-15-v3-env-fix');
+      // =====================================================================
+      //  🔐 كلمة المرور — مع تشخيص كامل لمصدر الباسوورد
+      //  -----------------------------------------------
+      //  • محلياً (تستعمل الملف مباشرة): كلمة السر = ejaza123
+      //  • على Coolify: ضع CHAT_PASSWORD في Environment Variables
+      //    (القيمة في env var تلغي القيمة الافتراضية)
+      //  • Dockerfile يبدل __CHAT_PASSWORD__ بالقيمة الحقيقية وقت البناء
+      // =====================================================================
+      const CHAT_PASSWORD = (function() {
+        var v = '__CHAT_PASSWORD__';
+        var isPlaceholder = v === '__CHAT_PASSWORD__';
+        var finalPass = isPlaceholder ? 'ejaza123' : v;
+        console.log('[EJZ-Chat] Password source:', isPlaceholder ? 'DEFAULT (ejaza123) — Dockerfile ما استبدل placeholder!' : 'Coolify env var ✅');
+        console.log('[EJZ-Chat] Password length:', finalPass.length);
+        return finalPass;
+      })();
 
-    // =====================================================================
-    //  🔧 تشخيص: تحقق من استبدال المتغيرات الأخرى
-    // =====================================================================
-    console.log('[EJZ-Chat] CRISP_WEBSITE_ID:', '__CRISP_WEBSITE_ID__'.includes('__') ? 'NOT SET (placeholder)' : 'SET');
-    console.log('[EJZ-Chat] POSTHOG_KEY:', '__POSTHOG_API_KEY__'.includes('__') ? 'NOT SET' : 'SET');
+      // =====================================================================
+      //  🔧 تشخيص متغيرات Crisp & PostHog
+      // =====================================================================
+      var crispId = '__CRISP_WEBSITE_ID__';
+      var phKey = '__POSTHOG_API_KEY__';
+      var phHost = '__POSTHOG_HOST__';
+      console.log('[EJZ-Chat] CRISP_WEBSITE_ID:', crispId === '__CRISP_WEBSITE_ID__' ? 'NOT SET (placeholder)' : 'SET ✅');
+      console.log('[EJZ-Chat] POSTHOG_API_KEY:', phKey === '__POSTHOG_API_KEY__' ? 'NOT SET (placeholder)' : 'SET ✅');
+      console.log('[EJZ-Chat] POSTHOG_HOST:', phHost === '__POSTHOG_HOST__' ? 'DEFAULT (placeholder)' : phHost);
 
-    // =====================================================================
-    //  🍪 إعدادات الجلسة — التحكم بالكوكيز
-    // =====================================================================
-    const CONFIG = {
-      clearCookiesOnExit: true,      // ← هل نمسح الكوكيز عند الخروج؟
-      crispSessionReset: true,       // ← هل نعيد تعيين جلسة Crisp عند الدخول؟
-      sessionStorageOnly: true,      // ← نخزّن البيانات في SessionStorage فقط (يزول بإغلاق التبويب)
-    };
+      // =====================================================================
+      //  🍪 إعدادات الجلسة — التحكم بالكوكيز
+      // =====================================================================
+      const CONFIG = {
+        clearCookiesOnExit: true,
+        crispSessionReset: true,
+        sessionStorageOnly: true,
+      };
 
     // =====================================================================
     //  فتح القفل
