@@ -389,42 +389,43 @@
     <p>© 2026 جميع الحقوق محفوظة</p>
   </footer>
 
-  <!-- Tawk.to — جلسة مؤقتة: كل تحديث = شات جديد (الموظف يشوف كل شيء) -->
+  <!-- Tawk.to — كل تحديث = زائر جديد (الموظف يشوف كل شيء في لوحته) -->
   <script type="text/javascript">
-  // 🧹 مسح كوكيز Tawk.to قبل التحميل
-  function clearTawkCookies() {
-    var cookies = document.cookie.split(';');
-    for (var i = 0; i < cookies.length; i++) {
-      var name = cookies[i].trim().split('=')[0];
-      if (name.toLowerCase().includes('tawk')) {
-        document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + ';';
-      }
+  (function() {
+    // ===== 1. مسح كل كوكيز + تخزين Tawk.to =====
+    function nukeTawk() {
+      document.cookie.split(';').forEach(function(c) {
+        var n = c.trim().split('=')[0];
+        if (n.toLowerCase().indexOf('tawk') !== -1) {
+          document.cookie = n + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+          document.cookie = n + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + location.hostname + ';';
+        }
+      });
+      for (var k in localStorage)
+        if (k.toLowerCase().indexOf('tawk') !== -1) localStorage.removeItem(k);
     }
-    // localStorage
-    var keys = Object.keys(localStorage);
-    for (var j = 0; j < keys.length; j++) {
-      if (keys[j].toLowerCase().includes('tawk')) {
-        localStorage.removeItem(keys[j]);
-      }
-    }
-  }
-  clearTawkCookies();
+    nukeTawk();
 
-  // 🆕 جلسة جديدة مع كل تحميل
-  var Tawk_API = Tawk_API || {};
-  Tawk_API.onLoad = function() {
-    Tawk_API.reset();
-    clearTawkCookies();
-  };
-  var Tawk_LoadStart = new Date();
-  (function(){
-  var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-  s1.async=true;
-  s1.src='https://embed.tawk.to/6a5124d3ef711a1d4de2d4f7/1jt6ffn0n';
-  s1.charset='UTF-8';
-  s1.setAttribute('crossorigin','*');
-  s0.parentNode.insertBefore(s1,s0);
+    // ===== 2. هوية عشوائية جديدة كل مرة — ما يقدر يربطك =====
+    var rid = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    window.Tawk_API = window.Tawk_API || {};
+    window.Tawk_API.visitor = {
+      name: 'ضيف_' + rid,
+      email: rid + '@tmp.local'
+    };
+    window.Tawk_API.onLoad = function() {
+      window.Tawk_API.reset();
+      setTimeout(nukeTawk, 600);  // نمسح ثاني بعد ما يستقر
+    };
+
+    // ===== 3. تحميل Tawk.to =====
+    window.Tawk_LoadStart = new Date();
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://embed.tawk.to/6a5124d3ef711a1d4de2d4f7/1jt6ffn0n';
+    s.charset = 'UTF-8';
+    s.setAttribute('crossorigin', '*');
+    document.head.appendChild(s);
   })();
   </script>
 </body>
