@@ -258,27 +258,49 @@
     <!-- Crisp.chat — يتحمّل فقط بعد فتح القفل -->
     <!-- ============================================================ -->
     <script>
-      // VERSION: 2025-01-15-v3-env-fix
-      console.log('[EJZ-Chat] VERSION: 2025-01-15-v3-env-fix');
-      // =====================================================================
-      //  🔐 كلمة المرور — مع تشخيص كامل لمصدر الباسوورد
-      //  -----------------------------------------------
-      //  • محلياً (تستعمل الملف مباشرة): كلمة السر = ejaza123
-      //  • على Coolify: ضع CHAT_PASSWORD في Environment Variables
-      //    (القيمة في env var تلغي القيمة الافتراضية)
-      //  • Dockerfile يبدل __CHAT_PASSWORD__ بالقيمة الحقيقية وقت البناء
-      // =====================================================================
-      const CHAT_PASSWORD = (function() {
-        var v = '__CHAT_PASSWORD__';
-        var isPlaceholder = v === '__CHAT_PASSWORD__';
-        var finalPass = isPlaceholder ? 'ejaza123' : v;
-        console.log('[EJZ-Chat] Password source:', isPlaceholder ? 'DEFAULT (ejaza123) — Dockerfile ما استبدل placeholder!' : 'Coolify env var ✅');
-        console.log('[EJZ-Chat] Password length:', finalPass.length);
-        return finalPass;
-      })();
+      // VERSION: 2025-01-15-v4-env-runtime
+      console.log('[EJZ-Chat] VERSION: 2025-01-15-v4-env-runtime');
 
       // =====================================================================
-      //  🔧 تشخيص متغيرات Crisp & PostHog
+      //  🔐 كلمة المرور — حل ديناميكي متعدد المصادر (Runtime Resolution)
+      //  أولوية التحقق:
+      //   1) window.env.CHAT_PASSWORD       ← حقنه وقت التشغيل (Coolify: inject via script)
+      //   2) URL query param ?pass=xxx       ← للاختبار السريع / روابط خاصة
+      //   3) Dockerfile placeholder replace  ← وقت البناء (إن شغّال عبر Dockerfile)
+      //   4) fallback ثابت 'ejaza123'        ← للتطوير المحلي
+      // =====================================================================
+      const CHAT_PASSWORD = (function() {
+        // 1) متغير بيئة محقون وقت التشغيل (الأعلى أولوية)
+        if (window.env && window.env.CHAT_PASSWORD) {
+          console.log('[EJZ-Chat] Password source: window.env.CHAT_PASSWORD ✅ (runtime injected)');
+          return window.env.CHAT_PASSWORD;
+        }
+
+        // 2) معامل URL ?pass=xxx
+        var urlParams = new URLSearchParams(window.location.search);
+        var urlPass = urlParams.get('pass');
+        if (urlPass) {
+          console.log('[EJZ-Chat] Password source: URL query param ?pass= ✅');
+          return urlPass;
+        }
+
+        // 3) استبدال Dockerfile للـ placeholder
+        var v = '__CHAT_PASSWORD__';
+        var isPlaceholder = v === '__CHAT_PASSWORD__';
+        if (!isPlaceholder) {
+          console.log('[EJZ-Chat] Password source: Dockerfile build-time replace ✅');
+          return v;
+        }
+
+        // 4) fallback للتطوير المحلي
+        console.log('[EJZ-Chat] Password source: DEFAULT fallback (ejaza123) ⚠️');
+        return 'ejaza123';
+      })();
+
+      console.log('[EJZ-Chat] Password length:', CHAT_PASSWORD.length);
+
+      // =====================================================================
+      //  🔧 تشخيص متغيرات Crisp & PostHog (كما كانت)
       // =====================================================================
       var crispId = '__CRISP_WEBSITE_ID__';
       var phKey = '__POSTHOG_API_KEY__';
@@ -296,34 +318,34 @@
         sessionStorageOnly: true,
       };
 
-    // =====================================================================
-    //  فتح القفل
-    // =====================================================================
-    function unlock() {
-      const pass = document.getElementById('passInput').value;
-      if (pass !== CHAT_PASSWORD) {
-        document.getElementById('errorMsg').style.display = 'block';
-        return;
-      }
-      // إخفاء القفل — إظهار الشات
-      document.getElementById('gate').style.display = 'none';
-      document.getElementById('chatArea').style.display = 'block';
+  // =====================================================================
+  //  فتح القفل
+  // =====================================================================
+  function unlock() {
+    const pass = document.getElementById('passInput').value;
+    if (pass !== CHAT_PASSWORD) {
+      document.getElementById('errorMsg').style.display = 'block';
+      return;
+    }
+    // إخفاء القفل — إظهار الشات
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('chatArea').style.display = 'block';
 
-      // تسجيل الدخول في SessionStorage فقط (يزول بإغلاق التبويب)
-      if (CONFIG.sessionStorageOnly) {
-        sessionStorage.setItem('ejaza_chat_unlocked', 'true');
-      }
-
-      // تحميل Crisp بعد فتح القفل (ما يتحمّلش إلا المحتاجين)
-      loadCrisp();
+    // تسجيل الدخول في SessionStorage فقط (يزول بإغلاق التبويب)
+    if (CONFIG.sessionStorageOnly) {
+      sessionStorage.setItem('ejaza_chat_unlocked', 'true');
     }
 
-    // التحقق إذا كان فاتح القفل قبل كذا (SessionStorage)
-    if (sessionStorage.getItem('ejaza_chat_unlocked') === 'true') {
-      document.getElementById('gate').style.display = 'none';
-      document.getElementById('chatArea').style.display = 'block';
-      loadCrisp();
-    }
+    // تحميل Crisp بعد فتح القفل (ما يتحمّلش إلا المحتاجين)
+    loadCrisp();
+  }
+
+  // التحقق إذا كان فاتح القفل قبل كذا (SessionStorage)
+  if (sessionStorage.getItem('ejaza_chat_unlocked') === 'true') {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('chatArea').style.display = 'block';
+    loadCrisp();
+  }
 
     // =====================================================================
     //  🍪 تحميل Crisp.chat
