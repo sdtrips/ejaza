@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>إجازة — الدردشة الخاصة</title>
+  <title>إجازة — تواصل للمسجلين</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E✈️%3C/text%3E%3C/svg%3E">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -18,7 +18,7 @@
       align-items:center;
       justify-content:center;
     }
-    /* ===== شاشة كلمة السر ===== */
+    /* ===== شاشة القفل ===== */
     .gate{
       background:#fff;
       border-radius:24px;
@@ -71,9 +71,7 @@
     }
     .toolbar .logo{font-weight:700;color:#059669;font-size:18px}
     .toolbar .status{font-size:13px;color:#6b7280}
-    /* Crisp سيظهر هنا — نترك مسافة للـ toolbar */
-    #crisp-container{height:100vh;width:100%}
-    /* ===== فقاعة التأكيد (حذف الجلسة) ===== */
+    /* ===== فقاعة التأكيد ===== */
     .toast{
       position:fixed;bottom:100px;left:50%;transform:translateX(-50%);
       background:#1f2937;color:#fff;padding:12px 24px;
@@ -88,20 +86,19 @@
 
   <!-- ===== شاشة القفل ===== -->
   <div class="gate" id="gate">
-    <h1>🔒 دردشة خاصة</h1>
-    <p>أدخل كلمة المرور للدخول إلى الدردشة</p>
-    <input type="password" id="passInput" placeholder="كلمة المرور" autocomplete="off">
-    <div class="error" id="errorMsg">❌ كلمة المرور غير صحيحة</div>
-    <button onclick="unlock()">فتح الدردشة</button>
+    <h1>🔒 تواصل للمسجلين</h1>
+    <p>هذه الدردشة مخصصة للعملاء المسجلين. أدخل كلمة المرور للوصول.</p>
+    <input type="password" id="passInput" placeholder="كلمة المرور" autocomplete="off" onkeydown="if(event.key==='Enter')unlock()">
+    <div class="error" id="errorMsg">❌ كلمة المرور غير صحيحة، حاول مرة أخرى</div>
+    <button onclick="unlock()">دخول</button>
   </div>
 
   <!-- ===== منطقة الشات ===== -->
   <div class="chat-area" id="chatArea">
     <div class="toolbar">
       <div class="logo">✈️ إجازة</div>
-      <div class="status">🔒 دردشة مؤقتة — بمجرد إغلاقك تختفي المحادثة</div>
+      <div class="status">🔒 محادثة مؤقتة — بمجرد إغلاقك تختفي المحادثة</div>
     </div>
-    <!-- Crisp يتحكم بنفسه — فقط نخبئ Tawk.to -->
   </div>
 
   <div class="toast" id="toast"></div>
@@ -112,9 +109,15 @@
   <script>
     // =====================================================================
     //  🔐 كلمة المرور
-    //  غيّرها من هنا
+    //  -----------------------------------------------
+    //  • محلياً (تستعمل الملف مباشرة): كلمة السر = ejaza123
+    //  • على Coolify: ضع CHAT_PASSWORD في Environment Variables
+    //    (القيمة في env var تلغي القيمة الافتراضية)
     // =====================================================================
-    const CHAT_PASSWORD='$CHAT_PASSWORD';  // ← تحقن من Coolify env var
+    const CHAT_PASSWORD = (function(){
+      var v = '$CHAT_PASSWORD';
+      return v === '$CHAT_PASSWORD' ? 'ejaza123' : v;
+    })();
 
     // =====================================================================
     //  🍪 إعدادات الجلسة — التحكم بالكوكيز
@@ -163,7 +166,7 @@
       window.CRISP_READY = true;
 
       window.$crisp = [];
-      window.CRISP_WEBSITE_ID = '$CRISP_WEBSITE_ID';  // ← تحقن من Coolify env var
+      window.CRISP_WEBSITE_ID = '$CRISP_WEBSITE_ID';  // ← يحقن من Coolify env var
 
       // تعريف الدومين اللي عنده الكوكيز
       window.CRISP_COOKIE_DOMAIN = window.location.hostname;
@@ -209,7 +212,7 @@
           }
         });
 
-        // مسح SessionStorage (يفترض يروح بإغلاق التبويب، لكن نضمن)
+        // مسح SessionStorage
         sessionStorage.removeItem('ejaza_chat_unlocked');
         sessionStorage.removeItem('ejaza_chat_has_msgs');
       });
@@ -219,9 +222,7 @@
     //  🍪 دالة مسح الكوكيز
     // =====================================================================
     function clearCookie(name) {
-      // المسار الرئيسي
       document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax';
-      // مع subdomain
       document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + '; SameSite=Lax';
     }
 
@@ -235,7 +236,7 @@
       setTimeout(function() { t.classList.remove('show'); }, 3000);
     }
 
-    console.log('✅ دردشة إجازة — جلسة مؤقتة: الكوكيز تُمسح عند الخروج');
+    console.log('✅ تواصل للمسجلين — جلسة مؤقتة: الكوكيز تُمسح عند الخروج');
   </script>
 
 </body>
