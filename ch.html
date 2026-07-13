@@ -258,18 +258,56 @@
     <!-- Crisp.chat — يتحمّل فقط بعد فتح القفل -->
     <!-- ============================================================ -->
     <script>
-      // =====================================================================
-      //  🔐 كلمة المرور — مشفرة Base64 (ليست واضحة في مصدر الصفحة)
-      //  كلمة المرور الإنتاجية: MySecureSecret2026
-      //  لتغييرها: غيّر قيمة PASSWORD_B64 أدناه (استخدم btoa('كلمة_جديدة') في الكونسول)
-      // =====================================================================
-      var PASSWORD_B64 = 'TXlTZWN1cmVTZWNyZXQyMDI2';  // Base64 لـ "MySecureSecret2026"
-      var CHAT_PASSWORD = atob(PASSWORD_B64);
+      // VERSION: 2025-01-15-v4-env-runtime
+      console.log('[EJZ-Chat] VERSION: 2025-01-15-v4-env-runtime');
 
       // =====================================================================
-      //  🆔 Crisp Website ID — استبدل القيمة أدناه بمعرفك الحقيقي
+      //  🔐 كلمة المرور — حل ديناميكي متعدد المصادر (Runtime Resolution)
+      //  أولوية التحقق:
+      //   1) window.env.CHAT_PASSWORD       ← حقنه وقت التشغيل (Coolify: inject via script)
+      //   2) URL query param ?pass=xxx       ← للاختبار السريع / روابط خاصة
+      //   3) Dockerfile placeholder replace  ← وقت البناء (إن شغّال عبر Dockerfile)
+      //   4) fallback ثابت 'ejaza123'        ← للتطوير المحلي
       // =====================================================================
-      var CRISP_WEBSITE_ID = 'YOUR_CRISP_WEBSITE_ID_HERE';  // ← ضع معرف Crisp هنا
+      const CHAT_PASSWORD = (function() {
+        // 1) متغير بيئة محقون وقت التشغيل (الأعلى أولوية)
+        if (window.env && window.env.CHAT_PASSWORD) {
+          console.log('[EJZ-Chat] Password source: window.env.CHAT_PASSWORD ✅ (runtime injected)');
+          return window.env.CHAT_PASSWORD;
+        }
+
+        // 2) معامل URL ?pass=xxx
+        var urlParams = new URLSearchParams(window.location.search);
+        var urlPass = urlParams.get('pass');
+        if (urlPass) {
+          console.log('[EJZ-Chat] Password source: URL query param ?pass= ✅');
+          return urlPass;
+        }
+
+        // 3) استبدال Dockerfile للـ placeholder
+        var v = '__CHAT_PASSWORD__';
+        var isPlaceholder = v === '__CHAT_PASSWORD__';
+        if (!isPlaceholder) {
+          console.log('[EJZ-Chat] Password source: Dockerfile build-time replace ✅');
+          return v;
+        }
+
+        // 4) fallback للتطوير المحلي
+        console.log('[EJZ-Chat] Password source: DEFAULT fallback (ejaza123) ⚠️');
+        return 'ejaza123';
+      })();
+
+      console.log('[EJZ-Chat] Password length:', CHAT_PASSWORD.length);
+
+      // =====================================================================
+      //  🔧 تشخيص متغيرات Crisp & PostHog (كما كانت)
+      // =====================================================================
+      var crispId = '__CRISP_WEBSITE_ID__';
+      var phKey = '__POSTHOG_API_KEY__';
+      var phHost = '__POSTHOG_HOST__';
+      console.log('[EJZ-Chat] CRISP_WEBSITE_ID:', crispId === '__CRISP_WEBSITE_ID__' ? 'NOT SET (placeholder)' : 'SET ✅');
+      console.log('[EJZ-Chat] POSTHOG_API_KEY:', phKey === '__POSTHOG_API_KEY__' ? 'NOT SET (placeholder)' : 'SET ✅');
+      console.log('[EJZ-Chat] POSTHOG_HOST:', phHost === '__POSTHOG_HOST__' ? 'DEFAULT (placeholder)' : phHost);
 
       // =====================================================================
       //  🍪 إعدادات الجلسة — التحكم بالكوكيز
@@ -280,116 +318,116 @@
         sessionStorageOnly: true,
       };
 
-    // =====================================================================
-    //  فتح القفل
-    // =====================================================================
-    function unlock() {
-      const pass = document.getElementById('passInput').value;
-      if (pass !== CHAT_PASSWORD) {
-        document.getElementById('errorMsg').style.display = 'block';
-        return;
-      }
-      // إخفاء القفل — إظهار الشات
-      document.getElementById('gate').style.display = 'none';
-      document.getElementById('chatArea').style.display = 'block';
+  // =====================================================================
+  //  فتح القفل
+  // =====================================================================
+  function unlock() {
+    const pass = document.getElementById('passInput').value;
+    if (pass !== CHAT_PASSWORD) {
+      document.getElementById('errorMsg').style.display = 'block';
+      return;
+    }
+    // إخفاء القفل — إظهار الشات
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('chatArea').style.display = 'block';
 
-      // تسجيل الدخول في SessionStorage فقط (يزول بإغلاق التبويب)
-      if (CONFIG.sessionStorageOnly) {
-        sessionStorage.setItem('ejaza_chat_unlocked', 'true');
-      }
-
-      // تحميل Crisp بعد فتح القفل (ما يتحمّلش إلا المحتاجين)
-      loadCrisp();
+    // تسجيل الدخول في SessionStorage فقط (يزول بإغلاق التبويب)
+    if (CONFIG.sessionStorageOnly) {
+      sessionStorage.setItem('ejaza_chat_unlocked', 'true');
     }
 
-    // التحقق إذا كان فاتح القفل قبل كذا (SessionStorage)
-    if (sessionStorage.getItem('ejaza_chat_unlocked') === 'true') {
-      document.getElementById('gate').style.display = 'none';
-      document.getElementById('chatArea').style.display = 'block';
-      loadCrisp();
-    }
+    // تحميل Crisp بعد فتح القفل (ما يتحمّلش إلا المحتاجين)
+    loadCrisp();
+  }
 
-      // =====================================================================
-      //  🍪 تحميل Crisp.chat
-      // =====================================================================
-      function loadCrisp() {
-        // نتأكد ما تحمّل مرتين
-        if (window.CRISP_READY) return;
-        window.CRISP_READY = true;
+  // التحقق إذا كان فاتح القفل قبل كذا (SessionStorage)
+  if (sessionStorage.getItem('ejaza_chat_unlocked') === 'true') {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('chatArea').style.display = 'block';
+    loadCrisp();
+  }
 
-        window.$crisp = [];
-        window.CRISP_WEBSITE_ID = CRISP_WEBSITE_ID;
+    // =====================================================================
+    //  🍪 تحميل Crisp.chat
+    // =====================================================================
+    function loadCrisp() {
+      // نتأكد ما تحمّل مرتين
+      if (window.CRISP_READY) return;
+      window.CRISP_READY = true;
 
-        // تعريف الدومين اللي عنده الكوكيز
-        window.CRISP_COOKIE_DOMAIN = window.location.hostname;
+      window.$crisp = [];
+      window.CRISP_WEBSITE_ID = '__CRISP_WEBSITE_ID__';  // ← يحقن من Coolify env var
 
-        (function() {
-          var d = document;
-          var s = d.createElement('script');
-          s.src = 'https://client.crisp.chat/l.js';
-          s.async = true;
-          s.charset = 'utf-8';
-          d.getElementsByTagName('head')[0].appendChild(s);
-        })();
+      // تعريف الدومين اللي عنده الكوكيز
+      window.CRISP_COOKIE_DOMAIN = window.location.hostname;
 
-        // 🔄 إعادة تعيين الجلسة — كل دخول جلسة جديدة (بدون سجل)
-        if (CONFIG.crispSessionReset) {
-          $crisp.push(['do', 'session:reset']);
-        }
+      (function() {
+        var d = document;
+        var s = d.createElement('script');
+        s.src = 'https://client.crisp.chat/l.js';
+        s.async = true;
+        s.charset = 'utf-8';
+        d.getElementsByTagName('head')[0].appendChild(s);
+      })();
 
-        // تعيين اسم الزائر لشيء عشوائي (خصوصية)
-        $crisp.push(['set', 'session:segments', [['guest', Date.now().toString(36)]]]);
-
-        // عند إرسال رسالة — نحدّث SessionStorage عشان نعرف متى نمسح
-        $crisp.push(['on', 'message:sent', function() {
-          sessionStorage.setItem('ejaza_chat_has_msgs', 'true');
-        }]);
+      // 🔄 إعادة تعيين الجلسة — كل دخول جلسة جديدة (بدون سجل)
+      if (CONFIG.crispSessionReset) {
+        $crisp.push(['do', 'session:reset']);
       }
 
-      // =====================================================================
-      //  🧹 عند مغادرة الصفحة — نمسح الجلسة نهائياً
-      // =====================================================================
-      if (CONFIG.clearCookiesOnExit) {
-        window.addEventListener('beforeunload', function() {
-          // مسح كوكيز Crisp
-          clearCookie('crisp-client');
-          clearCookie('crisp-client%2Fsession');
-          clearCookie('crisp-client%2Fsession%2Fthumb');
+      // تعيين اسم الزائر لشيء عشوائي (خصوصية)
+      $crisp.push(['set', 'session:segments', [['guest', Date.now().toString(36)]]]);
 
-          // مسح أي كوكيز تحوي crisp
-          document.cookie.split(';').forEach(function(c) {
-            var name = c.trim().split('=')[0];
-            if (name.toLowerCase().includes('crisp')) {
-              clearCookie(name);
-            }
-          });
+      // عند إرسال رسالة — نحدّث SessionStorage عشان نعرف متى نمسح
+      $crisp.push(['on', 'message:sent', function() {
+        sessionStorage.setItem('ejaza_chat_has_msgs', 'true');
+      }]);
+    }
 
-          // مسح SessionStorage
-          sessionStorage.removeItem('ejaza_chat_unlocked');
-          sessionStorage.removeItem('ejaza_chat_has_msgs');
+    // =====================================================================
+    //  🧹 عند مغادرة الصفحة — نمسح الجلسة نهائياً
+    // =====================================================================
+    if (CONFIG.clearCookiesOnExit) {
+      window.addEventListener('beforeunload', function() {
+        // مسح كوكيز Crisp
+        clearCookie('crisp-client');
+        clearCookie('crisp-client%2Fsession');
+        clearCookie('crisp-client%2Fsession%2Fthumb');
+
+        // مسح أي كوكيز تحوي crisp
+        document.cookie.split(';').forEach(function(c) {
+          var name = c.trim().split('=')[0];
+          if (name.toLowerCase().includes('crisp')) {
+            clearCookie(name);
+          }
         });
-      }
 
-      // =====================================================================
-      //  🍪 دالة مسح الكوكيز
-      // =====================================================================
-      function clearCookie(name) {
-        document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax';
-        document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + '; SameSite=Lax';
-      }
+        // مسح SessionStorage
+        sessionStorage.removeItem('ejaza_chat_unlocked');
+        sessionStorage.removeItem('ejaza_chat_has_msgs');
+      });
+    }
 
-      // =====================================================================
-      //  📱 Toast (إشعارات)
-      // =====================================================================
-      function showToast(msg) {
-        var t = document.getElementById('toast');
-        t.textContent = msg;
-        t.classList.add('show');
-        setTimeout(function() { t.classList.remove('show'); }, 3000);
-      }
+    // =====================================================================
+    //  🍪 دالة مسح الكوكيز
+    // =====================================================================
+    function clearCookie(name) {
+      document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax';
+      document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname + '; SameSite=Lax';
+    }
 
-      console.log('✅ تواصل للمسجلين — جلسة مؤقتة: الكوكيز تُمسح عند الخروج');
-    </script>
+    // =====================================================================
+    //  📱 Toast (إشعارات)
+    // =====================================================================
+    function showToast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 3000);
+    }
+
+    console.log('✅ تواصل للمسجلين — جلسة مؤقتة: الكوكيز تُمسح عند الخروج');
+  </script>
 
 </body>
 </html>
