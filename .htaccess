@@ -1,0 +1,21 @@
+# ============================================================
+# إجازة — Apache .htaccess
+# 
+# المشكلة: 3 ملفات متعارضة (index.html + index.php + ch.html)
+# الحل:    
+#   1. index.html هو الرئيسي عند زيارة /
+#   2. index.php هو صفحة الشات (بكلمة سر)
+#   3. ch.html القديم يُعاد توجيهه إلى index.php
+# ============================================================
+
+# 1. ترتيب الملف الافتراضي — index.html أولاً (الصفحة الرئيسية)
+DirectoryIndex index.html index.php
+
+# 2. تفعيل RewriteEngine
+RewriteEngine On
+
+# 3. إذا زار أحد ch.html → حوله إلى index.php (R=301 تحويل دائم)
+RewriteRule ^ch\.html$ /index.php [R=301,L]
+
+# 4. إذا زار أحد /ch بدون html → أيضاً حوله إلى index.php
+RewriteRule ^ch$ /index.php [R=301,L]
